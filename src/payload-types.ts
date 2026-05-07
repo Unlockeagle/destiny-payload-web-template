@@ -72,6 +72,8 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    flights: Flight;
+    hotels: Hotel;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -94,6 +96,8 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    flights: FlightsSelect<false> | FlightsSelect<true>;
+    hotels: HotelsSelect<false> | HotelsSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -783,6 +787,72 @@ export interface Form {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flights".
+ */
+export interface Flight {
+  id: string;
+  /**
+   * Mostrar en el carousel más vendidos
+   */
+  isFeatured?: boolean | null;
+  /**
+   * Ej: Madrid, Firenze, Los Roques...
+   */
+  flight: string;
+  /**
+   * Descripción corta, min. 100 - max. 150 caracteres
+   */
+  description: string;
+  /**
+   * Ej: España, Italia, Argentina...
+   */
+  country: string;
+  category?: (string | null) | Category;
+  /**
+   * Ej: Caracas (De donde sale el vuelo)
+   */
+  origin: string;
+  /**
+   * Imagen Principal del vuelo
+   */
+  cover_image: string | Media;
+  /**
+   * Ej: 1500 (sin símbolos ni puntos)
+   */
+  price: number;
+  hasDiscount?: boolean | null;
+  /**
+   * Precio final después del descuento
+   */
+  discountPrice?: number | null;
+  meta?: {
+    title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hotels".
+ */
+export interface Hotel {
+  id: string;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
 export interface Redirect {
@@ -990,6 +1060,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'users';
         value: string | User;
+      } | null)
+    | ({
+        relationTo: 'flights';
+        value: string | Flight;
+      } | null)
+    | ({
+        relationTo: 'hotels';
+        value: string | Hotel;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1355,6 +1433,42 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flights_select".
+ */
+export interface FlightsSelect<T extends boolean = true> {
+  isFeatured?: T;
+  flight?: T;
+  description?: T;
+  country?: T;
+  category?: T;
+  origin?: T;
+  cover_image?: T;
+  price?: T;
+  hasDiscount?: T;
+  discountPrice?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        image?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hotels_select".
+ */
+export interface HotelsSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

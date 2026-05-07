@@ -5,12 +5,12 @@ import { seoPlugin } from '@payloadcms/plugin-seo'
 import { searchPlugin } from '@payloadcms/plugin-search'
 import { Plugin } from 'payload'
 import { revalidateRedirects } from '@/hooks/revalidateRedirects'
-import { GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
+import { GenerateDescription, GenerateTitle, GenerateURL } from '@payloadcms/plugin-seo/types'
 import { FixedToolbarFeature, HeadingFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
 import { searchFields } from '@/search/fieldOverrides'
 import { beforeSyncWithSearch } from '@/search/beforeSync'
 
-import { Page, Post } from '@/payload-types'
+import { Flight, Page, Post } from '@/payload-types'
 import { getServerSideURL } from '@/utilities/getURL'
 
 const generateTitle: GenerateTitle<Post | Page> = ({ doc }) => {
@@ -21,6 +21,14 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   const url = getServerSideURL()
 
   return doc?.slug ? `${url}/${doc.slug}` : url
+}
+
+const generateDescription: GenerateDescription<Flight | Page> = ({ doc }) => {
+  // narrowing seguro con optional chaining
+  const excerpt = 'excerpt' in doc ? doc.excerpt : undefined
+  const description = 'description' in doc ? doc.description : undefined
+
+  return (excerpt ?? description ?? '') as string
 }
 
 export const plugins: Plugin[] = [
@@ -53,7 +61,15 @@ export const plugins: Plugin[] = [
   seoPlugin({
     generateTitle,
     generateURL,
+    // generateDescription,
   }),
+
+  // seoPlugin({
+  //   generateTitle: ({ doc }) => `${doc.title} | Destiny trip`,
+  //   generateDescription: ({ doc }) => doc.excerpt ?? doc.description ?? '',
+  //   generateURL: ({ doc, collectionSlug }) => `https://example.com/${collectionSlug}/${doc?.slug}`,
+  // }),
+
   formBuilderPlugin({
     fields: {
       payment: false,
