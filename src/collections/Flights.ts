@@ -9,9 +9,25 @@ import {
   OverviewField,
   PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import { InlineToolbarFeature, lexicalEditor } from '@payloadcms/richtext-lexical'
+import {
+  FixedToolbarFeature,
+  BoldFeature,
+  ItalicFeature,
+  UnderlineFeature,
+  HeadingFeature,
+  OrderedListFeature,
+  BlockquoteFeature,
+  LinkFeature,
+  UploadFeature,
+} from '@payloadcms/richtext-lexical'
 
 export const Flights: CollectionConfig = {
   slug: 'flights',
+  // 👇 esto activa los borradores
+  versions: {
+    drafts: true,
+  },
   admin: {
     useAsTitle: 'flight',
   },
@@ -28,7 +44,7 @@ export const Flights: CollectionConfig = {
 
       tabs: [
         {
-          label: 'Contenido',
+          label: 'Card',
           fields: [
             {
               name: 'isFeatured',
@@ -75,20 +91,6 @@ export const Flights: CollectionConfig = {
               required: true,
               admin: { description: 'Ej: Caracas (De donde sale el vuelo)' },
             },
-
-            {
-              name: 'cover_image',
-              label: 'Imagen Principal',
-              type: 'upload',
-              relationTo: 'media',
-              required: true,
-              admin: { description: 'Imagen Principal del vuelo' },
-            },
-          ],
-        },
-        {
-          label: 'Precios',
-          fields: [
             {
               name: 'price',
               label: 'Precio $',
@@ -116,14 +118,110 @@ export const Flights: CollectionConfig = {
                 ],
               },
             },
+
+            {
+              name: 'cover_image',
+              label: 'Imagen Principal',
+              type: 'upload',
+              relationTo: 'media',
+              required: true,
+              admin: { description: 'Imagen Principal del vuelo' },
+            },
           ],
         },
+        {
+          label: 'Contenido',
+          fields: [
+            {
+              name: 'longDescription',
+              label: 'Descripción Larga',
+              type: 'richText',
+              editor: lexicalEditor({
+                features: () => [
+                  FixedToolbarFeature(), // 👈 barra fija superior
+                  InlineToolbarFeature(), // 👈 barra flotante al seleccionar
+                  BoldFeature(),
+                  ItalicFeature(),
+                  UnderlineFeature(),
+                  HeadingFeature({
+                    enabledHeadingSizes: ['h2', 'h3', 'h4'], // h1 no — ya es el título de la página
+                  }),
+
+                  OrderedListFeature(),
+                  BlockquoteFeature(),
+                  LinkFeature(),
+                  UploadFeature({
+                    collections: {
+                      media: {
+                        fields: [
+                          {
+                            name: 'alt',
+                            type: 'text',
+                            label: 'Texto alternativo',
+                            required: true,
+                          },
+                          {
+                            name: 'caption',
+                            type: 'text',
+                            label: 'Pie de foto',
+                          },
+                        ],
+                      },
+                    },
+                  }),
+                ],
+              }),
+              admin: {
+                description: 'Mínimo 300 palabras para SEO.',
+              },
+            },
+            {
+              name: 'highlights',
+              label: 'Puntos Destacados',
+              type: 'array',
+              admin: {
+                description: 'Ej: Vuelo directo, Sin escalas, Equipaje incluido',
+              },
+              fields: [
+                {
+                  name: 'item',
+                  label: 'Punto',
+                  type: 'text',
+                  required: true,
+                },
+              ],
+            },
+            {
+              name: 'faqs',
+              label: 'Preguntas Frecuentes',
+              type: 'array',
+              admin: {
+                description: 'Genera rich snippets en Google — muy importante para SEO',
+              },
+              fields: [
+                {
+                  name: 'question',
+                  label: 'Pregunta',
+                  type: 'text',
+                  required: true,
+                },
+                {
+                  name: 'answer',
+                  label: 'Respuesta',
+                  type: 'textarea',
+                  required: true,
+                },
+              ],
+            },
+          ],
+        },
+
         {
           name: 'meta',
           label: 'SEO',
           fields: [
             OverviewField({
-              titlePath: 'meta.flight',
+              titlePath: 'meta.title', // ← corregir si era 'meta.flight'
               descriptionPath: 'meta.description',
               imagePath: 'meta.image',
             }),
@@ -133,14 +231,12 @@ export const Flights: CollectionConfig = {
             MetaImageField({
               relationTo: 'media',
             }),
-
-            MetaDescriptionField({}),
+            MetaDescriptionField({
+              hasGenerateFn: true, // ← AÑADIR ESTO
+            }),
             PreviewField({
-              // if the `generateUrl` function is configured
               hasGenerateFn: true,
-
-              // field paths to match the target field for data
-              titlePath: 'meta.flight',
+              titlePath: 'meta.title', // ← corregir si era 'meta.flight'
               descriptionPath: 'meta.description',
             }),
           ],

@@ -23,12 +23,15 @@ const generateURL: GenerateURL<Post | Page> = ({ doc }) => {
   return doc?.slug ? `${url}/${doc.slug}` : url
 }
 
-const generateDescription: GenerateDescription<Flight | Page> = ({ doc }) => {
-  // narrowing seguro con optional chaining
-  const excerpt = 'excerpt' in doc ? doc.excerpt : undefined
-  const description = 'description' in doc ? doc.description : undefined
+const generateDescription: GenerateDescription<Post | Page | Flight> = ({ doc }) => {
+  if (!doc) return ''
 
-  return (excerpt ?? description ?? '') as string
+  // Narrowing seguro por tipo de campo disponible
+  if ('excerpt' in doc && doc.excerpt) return doc.excerpt as string
+  if ('description' in doc && doc.description) return doc.description as string
+  if ('meta' in doc && doc.meta?.description) return doc.meta.description as string
+
+  return ''
 }
 
 export const plugins: Plugin[] = [
@@ -61,7 +64,7 @@ export const plugins: Plugin[] = [
   seoPlugin({
     generateTitle,
     generateURL,
-    // generateDescription,
+    generateDescription,
   }),
 
   // seoPlugin({

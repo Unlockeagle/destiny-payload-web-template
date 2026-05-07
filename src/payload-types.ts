@@ -813,10 +813,6 @@ export interface Flight {
    */
   origin: string;
   /**
-   * Imagen Principal del vuelo
-   */
-  cover_image: string | Media;
-  /**
    * Ej: 1500 (sin símbolos ni puntos)
    */
   price: number;
@@ -825,6 +821,47 @@ export interface Flight {
    * Precio final después del descuento
    */
   discountPrice?: number | null;
+  /**
+   * Imagen Principal del vuelo
+   */
+  cover_image: string | Media;
+  /**
+   * Mínimo 300 palabras para SEO.
+   */
+  longDescription?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Ej: Vuelo directo, Sin escalas, Equipaje incluido
+   */
+  highlights?:
+    | {
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Genera rich snippets en Google — muy importante para SEO
+   */
+  faqs?:
+    | {
+        question: string;
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
   meta?: {
     title?: string | null;
     /**
@@ -841,6 +878,7 @@ export interface Flight {
   slug: string;
   updatedAt: string;
   createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1445,10 +1483,24 @@ export interface FlightsSelect<T extends boolean = true> {
   country?: T;
   category?: T;
   origin?: T;
-  cover_image?: T;
   price?: T;
   hasDiscount?: T;
   discountPrice?: T;
+  cover_image?: T;
+  longDescription?: T;
+  highlights?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
   meta?:
     | T
     | {
@@ -1461,6 +1513,7 @@ export interface FlightsSelect<T extends boolean = true> {
   slug?: T;
   updatedAt?: T;
   createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
