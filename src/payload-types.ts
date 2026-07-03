@@ -69,11 +69,16 @@ export interface Config {
   collections: {
     pages: Page;
     posts: Post;
-    media: Media;
-    categories: Category;
-    users: User;
+    'travel-packages': TravelPackage;
     flights: Flight;
+    cruises: Cruise;
+    services: Service;
+    categories: Category;
     hotels: Hotel;
+    'types-flights': TypesFlight;
+    highlights: Highlight;
+    media: Media;
+    users: User;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -93,11 +98,16 @@ export interface Config {
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
-    media: MediaSelect<false> | MediaSelect<true>;
-    categories: CategoriesSelect<false> | CategoriesSelect<true>;
-    users: UsersSelect<false> | UsersSelect<true>;
+    'travel-packages': TravelPackagesSelect<false> | TravelPackagesSelect<true>;
     flights: FlightsSelect<false> | FlightsSelect<true>;
+    cruises: CruisesSelect<false> | CruisesSelect<true>;
+    services: ServicesSelect<false> | ServicesSelect<true>;
+    categories: CategoriesSelect<false> | CategoriesSelect<true>;
     hotels: HotelsSelect<false> | HotelsSelect<true>;
+    'types-flights': TypesFlightsSelect<false> | TypesFlightsSelect<true>;
+    highlights: HighlightsSelect<false> | HighlightsSelect<true>;
+    media: MediaSelect<false> | MediaSelect<true>;
+    users: UsersSelect<false> | UsersSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -205,7 +215,34 @@ export interface Page {
       | null;
     media?: (string | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+    | {
+        title?: string | null;
+        subtitle?: string | null;
+        selectionMode?: ('manual' | 'featured' | 'latest') | null;
+        /**
+         * Seleccione los vuelos que deseas mostrar en esta sección.
+         */
+        flights?: (string | Flight)[] | null;
+        limit?: number | null;
+        disableInnerContainer?: boolean | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'featuredFlights';
+      }
+    | {
+        title: string;
+        subTitle?: string | null;
+        id?: string | null;
+        blockName?: string | null;
+        blockType: 'pruebaBlockContent';
+      }
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -251,10 +288,6 @@ export interface Post {
   categories?: (string | Category)[] | null;
   meta?: {
     title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
     description?: string | null;
   };
   publishedAt?: string | null;
@@ -280,7 +313,7 @@ export interface Post {
  */
 export interface Media {
   id: string;
-  alt?: string | null;
+  alt: string;
   caption?: {
     root: {
       type: string;
@@ -400,6 +433,42 @@ export interface FolderInterface {
 export interface Category {
   id: string;
   title: string;
+  description: string;
+  /**
+   * La descripción debe contener al menos 300 caracteres para garantizar información clara, completa y detallada sobre la categoría. (SEO)
+   */
+  longDescription: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Genera schema FAQPage → rich snippets en Google. Mínimo 3 preguntas.
+   */
+  faqs?:
+    | {
+        /**
+         * Ej: ¿Cuánto cuesta volar de Caracas a Madrid?
+         */
+        question: string;
+        /**
+         * Respuesta clara y concisa. Mín. 50 caracteres.
+         */
+        answer: string;
+        id?: string | null;
+      }[]
+    | null;
+  publishedAt?: string | null;
   /**
    * When enabled, the slug will auto-generate from the title field on save and autosave.
    */
@@ -786,47 +855,251 @@ export interface Form {
   createdAt: string;
 }
 /**
+ * Gestiona y organiza la colección de vuelos disponibles para ofrecer a tus clientes las mejores opciones de viaje desde el panel administrativo de Destiny Trip.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "flights".
  */
 export interface Flight {
   id: string;
+  title?: string | null;
   /**
-   * Mostrar en el carousel más vendidos
+   * ⭐ Mostrar en el carousel más vendidos
    */
   isFeatured?: boolean | null;
   /**
+   * Ej: Caracas (De donde sale el vuelo)
+   */
+  origin: string;
+  /**
    * Ej: Madrid, Firenze, Los Roques...
    */
-  flight: string;
+  destination: string;
+  typeFlight?: (string | null) | TypesFlight;
+  /**
+   * Ej: España, Italia, Argentina...
+   */
+  country: string;
   /**
    * Descripción corta, min. 100 - max. 150 caracteres
    */
   description: string;
   /**
-   * Ej: España, Italia, Argentina...
+   * Imagen Principal del vuelo
    */
-  country: string;
-  category?: (string | null) | Category;
-  /**
-   * Ej: Caracas (De donde sale el vuelo)
-   */
-  origin: string;
+  cover_image: string | Media;
   /**
    * Ej: 1500 (sin símbolos ni puntos)
    */
   price: number;
   hasDiscount?: boolean | null;
   /**
+   * Fecha de inicio de la promoción
+   */
+  startDiscount?: string | null;
+  /**
+   * Fecha de final de la promoción
+   */
+  endDiscount?: string | null;
+  /**
    * Precio final después del descuento
    */
   discountPrice?: number | null;
   /**
-   * Imagen Principal del vuelo
+   * Selecciona las características para este vuelo
    */
-  cover_image: string | Media;
+  highlights?: (string | Highlight)[] | null;
   /**
-   * Mínimo 300 palabras para SEO.
+   * Post del blog que habla de este vuelo — genera tráfico SEO hacia esta página
+   */
+  relatedPost?: (string | null) | Post;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+  };
+  publishedAt?: string | null;
+  /**
+   * URL del vuelo — se genera automáticamente
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Administra los tipos de vuelos disponibles y configuraciones para organizar mejor las opciones de viaje dentro del panel administrativo de Destiny Trip.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "types-flights".
+ */
+export interface TypesFlight {
+  id: string;
+  title: string;
+  publishedAt?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Gestiona las características o elementos destacados que se mostrarán en la plataforma para resaltar promociones, destinos, servicios y experiencias importantes dentro de los vuelos y cruceros Destiny Trip.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "highlights".
+ */
+export interface Highlight {
+  id: string;
+  /**
+   * Ej: Vuelo directo, sin escalas, Equipaje incluido, etc...
+   */
+  title: string;
+  /**
+   * Ej: Airplane, Bag, Pool, etc...
+   */
+  icon?: string | null;
+  type?: ('flights' | 'cruises' | 'hotels' | 'packages') | null;
+  publishedAt?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * Administra los paquetes de viajes disponibles y configuraciones para organizar mejor las opciones de viaje dentro del panel administrativo de Destiny Trip.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "travel-packages".
+ */
+export interface TravelPackage {
+  id: string;
+  isFeatured?: boolean | null;
+  /**
+   * Ej: Paquete Todo Incluido Cancún 7 días, Min. 50 - Máx 60 caracteres - se usa como meta.tite
+   */
+  title: string;
+  /**
+   * Min. 100 - Máx. 150 caracteres — se usa como meta.description
+   */
+  description: string;
+  cover_image: string | Media;
+  gallery?:
+    | {
+        image: string | Media;
+        /**
+         * Descripción breve de la imagen usar 2 - 3 palabras, ayuda al SEO
+         */
+        alt: string;
+        /**
+         * Descripción de la imagen, ayuda al SEO
+         */
+        caption: string;
+        id?: string | null;
+      }[]
+    | null;
+  Destiny?: string | null;
+  category?: (string | null) | Category;
+  highlights?: (string | Highlight)[] | null;
+  relatedPost?: (string | null) | Post;
+  includesFlight?: boolean | null;
+  /**
+   * Selecciona el vuelo incluido en el paquete
+   */
+  flight?: (string | null) | Flight;
+  includesHotel?: boolean | null;
+  /**
+   * Selecciona el hotel incluido en el paquete
+   */
+  hotel?: (string | null) | Hotel;
+  roomType?: ('single' | 'double' | 'triple' | 'suite') | null;
+  includesCruise?: boolean | null;
+  cruise?: (string | null) | Cruise;
+  /**
+   * Traslados, tours, seguros, entradas...
+   */
+  extraServices?: (string | Service)[] | null;
+  /**
+   * Lista visible para el cliente en la página del paquete
+   */
+  includes?:
+    | {
+        /**
+         * Ej: Vuelo de ida y vuelta, Desayuno incluido
+         */
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Importante para evitar malentendidos con el cliente
+   */
+  excludes?:
+    | {
+        /**
+         * Ej: Gastos personales, Visas, Propinas
+         */
+        item: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Ej: 7
+   */
+  days: number;
+  /**
+   * Ej: 6
+   */
+  nights: number;
+  minPersons?: number | null;
+  maxPersons?: number | null;
+  allowsChildren?: boolean | null;
+  childMinAge?: number | null;
+  childMaxAge?: number | null;
+  allowsInfants?: boolean | null;
+  infantMaxAge?: number | null;
+  /**
+   * Agrega las salidas disponibles con sus cupos
+   */
+  availableDates?:
+    | {
+        departureDate: string;
+        returnDate?: string | null;
+        spotsTotal: number;
+        spotsAvailable: number;
+        /**
+         * Deja vacío para usar el precio base del paquete
+         */
+        priceOverride?: number | null;
+        status?: ('available' | 'limited' | 'sold_out' | 'closed') | null;
+        id?: string | null;
+      }[]
+    | null;
+  priceType: 'per_person' | 'per_group' | 'fixed';
+  /**
+   * Precio por persona o total según el tipo
+   */
+  price: number;
+  /**
+   * Dejar en 0 si aplica el mismo precio
+   */
+  childPrice?: number | null;
+  /**
+   * Dejar en 0 si viajan gratis
+   */
+  infantPrice?: number | null;
+  hasDiscount?: boolean | null;
+  startDiscount?: string | null;
+  endDiscount?: string | null;
+  discountPrice?: number | null;
+  /**
+   * Mínimo 300 palabras para SEO
    */
   longDescription?: {
     root: {
@@ -844,17 +1117,20 @@ export interface Flight {
     [k: string]: unknown;
   } | null;
   /**
-   * Ej: Vuelo directo, Sin escalas, Equipaje incluido
+   * Día a día del paquete
    */
-  highlights?:
+  itinerary?:
     | {
-        item: string;
+        day: number;
+        /**
+         * Ej: Llegada a Cancún y check-in
+         */
+        title: string;
+        description: string;
+        meals?: ('breakfast' | 'lunch' | 'dinner')[] | null;
         id?: string | null;
       }[]
     | null;
-  /**
-   * Genera rich snippets en Google — muy importante para SEO
-   */
   faqs?:
     | {
         question: string;
@@ -864,10 +1140,6 @@ export interface Flight {
     | null;
   meta?: {
     title?: string | null;
-    /**
-     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
-     */
-    image?: (string | null) | Media;
     description?: string | null;
   };
   publishedAt?: string | null;
@@ -881,10 +1153,83 @@ export interface Flight {
   _status?: ('draft' | 'published') | null;
 }
 /**
+ * Colección de hoteles disponibles para gestionar, organizar y ofrecer las mejores opciones de alojamiento a tus clientes desde el panel administrativo de Destiny Trip.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "hotels".
  */
 export interface Hotel {
+  id: string;
+  title: string;
+  address?: string | null;
+  country?: string | null;
+  state?: string | null;
+  /**
+   * Agrega teléfonos, emails, redes sociales o cualquier dato de contacto
+   */
+  info?:
+    | {
+        type:
+          | 'phone'
+          | 'whatsapp'
+          | 'email'
+          | 'contact'
+          | 'zip'
+          | 'website'
+          | 'facebook'
+          | 'instagram'
+          | 'linkedin'
+          | 'tiktok';
+        /**
+         * Ej: Oficina Principal, Soporte, Ventas.
+         */
+        label?: string | null;
+        /**
+         * Ej: +58 412 123 4567
+         */
+        value: string;
+        isPublic?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  cover_image?: (string | null) | Media;
+  gallery_images?: (string | Media)[] | null;
+  /**
+   * Precio alojamiento por persona en $
+   */
+  price?: number | null;
+  /**
+   * Fecha final del precio
+   */
+  'expiration-date'?: string | null;
+  publishedAt?: string | null;
+  /**
+   * When enabled, the slug will auto-generate from the title field on save and autosave.
+   */
+  generateSlug?: boolean | null;
+  slug: string;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cruises".
+ */
+export interface Cruise {
+  id: string;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+  };
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services".
+ */
+export interface Service {
   id: string;
   updatedAt: string;
   createdAt: string;
@@ -1088,24 +1433,44 @@ export interface PayloadLockedDocument {
         value: string | Post;
       } | null)
     | ({
-        relationTo: 'media';
-        value: string | Media;
-      } | null)
-    | ({
-        relationTo: 'categories';
-        value: string | Category;
-      } | null)
-    | ({
-        relationTo: 'users';
-        value: string | User;
+        relationTo: 'travel-packages';
+        value: string | TravelPackage;
       } | null)
     | ({
         relationTo: 'flights';
         value: string | Flight;
       } | null)
     | ({
+        relationTo: 'cruises';
+        value: string | Cruise;
+      } | null)
+    | ({
+        relationTo: 'services';
+        value: string | Service;
+      } | null)
+    | ({
+        relationTo: 'categories';
+        value: string | Category;
+      } | null)
+    | ({
         relationTo: 'hotels';
         value: string | Hotel;
+      } | null)
+    | ({
+        relationTo: 'types-flights';
+        value: string | TypesFlight;
+      } | null)
+    | ({
+        relationTo: 'highlights';
+        value: string | Highlight;
+      } | null)
+    | ({
+        relationTo: 'media';
+        value: string | Media;
+      } | null)
+    | ({
+        relationTo: 'users';
+        value: string | User;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1205,6 +1570,26 @@ export interface PagesSelect<T extends boolean = true> {
         mediaBlock?: T | MediaBlockSelect<T>;
         archive?: T | ArchiveBlockSelect<T>;
         formBlock?: T | FormBlockSelect<T>;
+        featuredFlights?:
+          | T
+          | {
+              title?: T;
+              subtitle?: T;
+              selectionMode?: T;
+              flights?: T;
+              limit?: T;
+              disableInnerContainer?: T;
+              id?: T;
+              blockName?: T;
+            };
+        pruebaBlockContent?:
+          | T
+          | {
+              title?: T;
+              subTitle?: T;
+              id?: T;
+              blockName?: T;
+            };
       };
   meta?:
     | T
@@ -1318,7 +1703,6 @@ export interface PostsSelect<T extends boolean = true> {
     | T
     | {
         title?: T;
-        image?: T;
         description?: T;
       };
   publishedAt?: T;
@@ -1329,6 +1713,246 @@ export interface PostsSelect<T extends boolean = true> {
         id?: T;
         name?: T;
       };
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "travel-packages_select".
+ */
+export interface TravelPackagesSelect<T extends boolean = true> {
+  isFeatured?: T;
+  title?: T;
+  description?: T;
+  cover_image?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        alt?: T;
+        caption?: T;
+        id?: T;
+      };
+  Destiny?: T;
+  category?: T;
+  highlights?: T;
+  relatedPost?: T;
+  includesFlight?: T;
+  flight?: T;
+  includesHotel?: T;
+  hotel?: T;
+  roomType?: T;
+  includesCruise?: T;
+  cruise?: T;
+  extraServices?: T;
+  includes?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  excludes?:
+    | T
+    | {
+        item?: T;
+        id?: T;
+      };
+  days?: T;
+  nights?: T;
+  minPersons?: T;
+  maxPersons?: T;
+  allowsChildren?: T;
+  childMinAge?: T;
+  childMaxAge?: T;
+  allowsInfants?: T;
+  infantMaxAge?: T;
+  availableDates?:
+    | T
+    | {
+        departureDate?: T;
+        returnDate?: T;
+        spotsTotal?: T;
+        spotsAvailable?: T;
+        priceOverride?: T;
+        status?: T;
+        id?: T;
+      };
+  priceType?: T;
+  price?: T;
+  childPrice?: T;
+  infantPrice?: T;
+  hasDiscount?: T;
+  startDiscount?: T;
+  endDiscount?: T;
+  discountPrice?: T;
+  longDescription?: T;
+  itinerary?:
+    | T
+    | {
+        day?: T;
+        title?: T;
+        description?: T;
+        meals?: T;
+        id?: T;
+      };
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flights_select".
+ */
+export interface FlightsSelect<T extends boolean = true> {
+  title?: T;
+  isFeatured?: T;
+  origin?: T;
+  destination?: T;
+  typeFlight?: T;
+  country?: T;
+  description?: T;
+  cover_image?: T;
+  price?: T;
+  hasDiscount?: T;
+  startDiscount?: T;
+  endDiscount?: T;
+  discountPrice?: T;
+  highlights?: T;
+  relatedPost?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  publishedAt?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "cruises_select".
+ */
+export interface CruisesSelect<T extends boolean = true> {
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "services_select".
+ */
+export interface ServicesSelect<T extends boolean = true> {
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "categories_select".
+ */
+export interface CategoriesSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  longDescription?: T;
+  faqs?:
+    | T
+    | {
+        question?: T;
+        answer?: T;
+        id?: T;
+      };
+  publishedAt?: T;
+  generateSlug?: T;
+  slug?: T;
+  parent?: T;
+  breadcrumbs?:
+    | T
+    | {
+        doc?: T;
+        url?: T;
+        label?: T;
+        id?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "hotels_select".
+ */
+export interface HotelsSelect<T extends boolean = true> {
+  title?: T;
+  address?: T;
+  country?: T;
+  state?: T;
+  info?:
+    | T
+    | {
+        type?: T;
+        label?: T;
+        value?: T;
+        isPublic?: T;
+        id?: T;
+      };
+  cover_image?: T;
+  gallery_images?: T;
+  price?: T;
+  'expiration-date'?: T;
+  publishedAt?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "types-flights_select".
+ */
+export interface TypesFlightsSelect<T extends boolean = true> {
+  title?: T;
+  publishedAt?: T;
+  generateSlug?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "highlights_select".
+ */
+export interface HighlightsSelect<T extends boolean = true> {
+  title?: T;
+  icon?: T;
+  type?: T;
+  publishedAt?: T;
   generateSlug?: T;
   slug?: T;
   updatedAt?: T;
@@ -1431,26 +2055,6 @@ export interface MediaSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "categories_select".
- */
-export interface CategoriesSelect<T extends boolean = true> {
-  title?: T;
-  generateSlug?: T;
-  slug?: T;
-  parent?: T;
-  breadcrumbs?:
-    | T
-    | {
-        doc?: T;
-        url?: T;
-        label?: T;
-        id?: T;
-      };
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "users_select".
  */
 export interface UsersSelect<T extends boolean = true> {
@@ -1471,57 +2075,6 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "flights_select".
- */
-export interface FlightsSelect<T extends boolean = true> {
-  isFeatured?: T;
-  flight?: T;
-  description?: T;
-  country?: T;
-  category?: T;
-  origin?: T;
-  price?: T;
-  hasDiscount?: T;
-  discountPrice?: T;
-  cover_image?: T;
-  longDescription?: T;
-  highlights?:
-    | T
-    | {
-        item?: T;
-        id?: T;
-      };
-  faqs?:
-    | T
-    | {
-        question?: T;
-        answer?: T;
-        id?: T;
-      };
-  meta?:
-    | T
-    | {
-        title?: T;
-        image?: T;
-        description?: T;
-      };
-  publishedAt?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-  _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "hotels_select".
- */
-export interface HotelsSelect<T extends boolean = true> {
-  updatedAt?: T;
-  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
