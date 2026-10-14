@@ -9,8 +9,8 @@ import { redirects } from './redirects'
 
 //Todo: Comentar para el deploy
 // const NEXT_PUBLIC_SERVER_URL = process.env.VERCEL_PROJECT_PRODUCTION_URL
-//   ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-//   : process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
+// 	? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+// 	: process.env.__NEXT_PRIVATE_ORIGIN || 'http://localhost:3000'
 
 const nextConfig: NextConfig = {
 	// Temporarily required on Windows until Next.js fixes Turbopack Sass resolution.
@@ -27,14 +27,17 @@ const nextConfig: NextConfig = {
 		qualities: [100],
 		//Todo: Comentar para el deploy
 		// remotePatterns: [
-		//   ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
-		//     const url = new URL(item)
+		// 	...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map(
+		// 		(item) => {
+		// 			const url = new URL(item)
 
-		//     return {
-		//       hostname: url.hostname,
-		//       protocol: url.protocol.replace(':', '') as 'http' | 'https',
-		//     }
-		//   }),
+		// 			return {
+		// 				hostname: url.hostname,
+		// 				protocol: url.protocol.replace(':', '') as
+		// 					'http' | 'https',
+		// 			}
+		// 		},
+		// 	),
 		// ],
 		//Todo: desComentar para el deploy
 		remotePatterns: [
