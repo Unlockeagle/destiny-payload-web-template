@@ -15,6 +15,13 @@ export const FlightCard = ({ flight }: Props) => {
 			? flight.typeFlight?.slug
 			: 'internacional'
 
+	const postSlug =
+		typeof flight.relatedPost === 'object' ? flight.relatedPost?.slug : null
+
+	const href = postSlug
+		? `/${postSlug}` // URL del post
+		: `/vuelos/${flightTypeSlug}/${flight.slug}`
+
 	// ✅ filtra highlights inválidos antes del map
 	const highlights = (flight.highlights ?? []).filter(
 		(h): h is Extract<typeof h, { id: string }> =>
@@ -75,7 +82,7 @@ export const FlightCard = ({ flight }: Props) => {
 				{/* flight --->>> CTA */}
 
 				<Link
-					href={`vuelos/${flightTypeSlug}/${flight.slug}`}
+					href={href}
 					className="mt-4 group bg-pink-600 text-zinc-50 text-center rounded-md px-4 py-2"
 				>
 					Ver vuelo{' '}
