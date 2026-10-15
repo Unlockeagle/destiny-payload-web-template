@@ -19,7 +19,7 @@ export const FlightCard = ({ flight }: Props) => {
 		typeof flight.relatedPost === 'object' ? flight.relatedPost?.slug : null
 
 	const href = postSlug
-		? `/${postSlug}` // URL del post
+		? `/posts/${postSlug}` // URL del post
 		: `/vuelos/${flightTypeSlug}/${flight.slug}`
 
 	// ✅ filtra highlights inválidos antes del map
