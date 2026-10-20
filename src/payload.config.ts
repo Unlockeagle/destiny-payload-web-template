@@ -55,6 +55,11 @@ export default buildConfig({
 				},
 			],
 		},
+		components: {
+			graphics: {
+				Logo: '/components/Logo/Logo.tsx#Logo',
+			},
+		},
 	},
 	// This config helps us configure global or default features that the other editors can inherit
 	editor: defaultLexical,
