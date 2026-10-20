@@ -39,7 +39,8 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
 					<Logo
 						loading="eager"
 						priority="high"
-						className="invert dark:invert-0"
+						// className="invert dark:invert-0"
+						className="dark:invert-0"
 					/>
 				</Link>
 				<HeaderNav data={data} />
