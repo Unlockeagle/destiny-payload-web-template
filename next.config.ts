@@ -23,6 +23,9 @@ const nextConfig: NextConfig = {
 			{
 				pathname: '/api/media/file/**',
 			},
+			{
+				pathname: '/airplane.png',
+			},
 		],
 		qualities: [100],
 		//Todo: Comentar para el deploy

@@ -1,6 +1,6 @@
 # SPEC 01 — Destiny Hero
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-10-21
 > **Objetivo:** Añadir un nuevo tipo de hero `destinyHero` para Pages que reproduzca el diseño de referencia (texto + CTA a la izquierda, avión `public/airplane.png` al centro, curva rosa animada y nube morada al fondo).
@@ -81,20 +81,25 @@ Colores tomados de la referencia, aplicados como clases Tailwind arbitrarias sol
 
 ## Criterios de aceptación
 
-- [ ] El select `hero.type` de Pages en el admin incluye la opción "Destiny Hero".
-- [ ] `src/payload-types.ts` incluye `'destinyHero'` en el tipo del hero.
-- [ ] Una Page con hero "Destiny Hero" muestra el `richText` y los `links` configurados en el admin.
-- [ ] El botón "Contacto" tiene fondo `#B12672`, texto blanco e icono ▶, y navega al link configurado.
-- [ ] El avión se carga desde `/airplane.png` mediante `next/image`.
-- [ ] La curva rosa se dibuja animada al cargar la página.
-- [ ] El avión entra con fade + slide al cargar la página.
-- [ ] Con `prefers-reduced-motion: reduce`, la curva aparece completa y el avión aparece sin animación.
-- [ ] La nube morada ocupa el ancho completo en el borde inferior del hero.
-- [ ] A 375px de ancho, el texto queda arriba, el avión debajo y no hay scroll horizontal.
-- [ ] `PruebaBlock` se ve igual que antes del cambio.
-- [ ] Las Pages con heros High/Medium/Low Impact se ven igual que antes.
-- [ ] `pnpm lint` no reporta errores nuevos.
-- [ ] La consola del navegador no muestra errores al cargar una Page con `destinyHero`.
+- [x] El select `hero.type` de Pages en el admin incluye la opción "Destiny Hero".
+- [x] `src/payload-types.ts` incluye `'destinyHero'` en el tipo del hero.
+- [x] Una Page con hero "Destiny Hero" muestra el `richText` y los `links` configurados en el admin.
+- [x] El botón "Contacto" tiene fondo `#B12672`, texto blanco e icono ▶, y navega al link configurado.
+- [x] El avión se carga desde `/airplane.png` mediante `next/image`.
+- [x] La curva rosa se dibuja animada al cargar la página.
+- [x] El avión entra con fade + slide al cargar la página.
+- [x] Con `prefers-reduced-motion: reduce`, la curva aparece completa y el avión aparece sin animación.
+- [x] La nube morada ocupa el ancho completo en el borde inferior del hero.
+- [x] A 375px de ancho, el texto queda arriba, el avión debajo y no hay scroll horizontal.
+- [ ] `PruebaBlock` se ve igual que antes del cambio. _(Sin Page de prueba; su uso de `VectorComponent` no cambia.)_
+- [ ] Las Pages con heros High/Medium/Low Impact se ven igual que antes. _(Sin Pages de prueba; sus archivos no se modificaron.)_
+- [ ] `pnpm lint` no reporta errores nuevos. _(Bloqueado: la config de ESLint falla antes de analizar archivos; pendiente para otra spec.)_
+- [x] La consola del navegador no muestra errores al cargar una Page con `destinyHero`.
+
+## Notas de implementación
+
+- `next.config.ts`: se añadió `{ pathname: '/airplane.png' }` a `images.localPatterns`; sin ello `next/image` rechaza el avión.
+- Verificación automatizada en `tests/e2e/destiny-hero.e2e.spec.ts` (Playwright, contra la home).
 
 ## Decisiones
 

@@ -1,8 +1,14 @@
 import svgPaths from '@/components/Backgorund/svg-piosygs994'
-export const VectorComponent = () => {
+type Props = { className?: string }
+
+export const VectorComponent = ({ className }: Props) => {
 	return (
 		<>
-			<div className="absolute inset-[-1.45%_-2.06%_-1.46%_10.07%]">
+			<div
+				className={
+					className ?? 'absolute inset-[-1.45%_-2.06%_-1.46%_10.07%]'
+				}
+			>
 				<svg
 					className="block size-full"
 					fill="none"
