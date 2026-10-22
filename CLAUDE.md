@@ -46,5 +46,5 @@ Prettier: tabs (width 4), single quotes, no semicolons, trailing commas, printWi
 ## Deployment notes
 
 - `next.config.ts` has local-vs-deploy blocks marked `//Todo: Comentar para el deploy` / `desComentar para el deploy` around `NEXT_PUBLIC_SERVER_URL` and `images.remotePatterns` — these must be toggled by hand when deploying (per README).
-- Deploy target uses Nixpacks (`nixpacks.toml`, pnpm via corepack); `Dockerfile` and `docker-compose.yml` (local Mongo) are also available.
+- Deployed on Dokploy with the Railpack build type: Node version pinned in `.node-version` (24.22.1), pnpm version from `packageManager` in `package.json`. `Dockerfile` and `docker-compose.yml` (local Mongo) are also available.
 - Categories expected to exist in the admin (Vuelos Nacionales, Vuelos Internacionales, Cruceros, Destinos, Consejos de Viaje, Ofertas) are listed at the top of `README.md`.
