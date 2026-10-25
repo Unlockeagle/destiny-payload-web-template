@@ -23,6 +23,7 @@ import { Highlights } from './collections/Highlights'
 import { TravelPackages } from './collections/Travel-Packages'
 import { Services } from './collections/Services'
 import { Cruises } from './collections/Cruises'
+import { Destinations } from './collections/Destinations'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -70,6 +71,7 @@ export default buildConfig({
 		Pages,
 		Posts,
 		TravelPackages,
+		Destinations,
 		Flights,
 		Cruises,
 		Services,

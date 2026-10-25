@@ -1,6 +1,6 @@
 # SPEC 02 — Destinations
 
-> **Estado:** Aprobado
+> **Estado:** Implementado
 > **Depende de:** —
 > **Fecha:** 2026-10-23
 > **Objetivo:** Crear la colección `destinations` con su página pública `/destinos/[slug]` y convertir `Flights.destination` en una relación con ella, migrando los vuelos existentes.
@@ -221,6 +221,17 @@ getFlightDisplayPrice(flight, now?): number
 | El descuento vence pero la página estática sigue mostrando el precio rebajado hasta la próxima revalidación | Se acepta en esta spec. Si molesta, se añade `revalidate` por tiempo a la ruta en otra spec. |
 | `generateMeta` está tipado para `Page`/`Post` | Ampliar su tipo para aceptar `Destination` en el paso 5. |
 | El hook de `title` hace una consulta extra por guardado | Solo cuando `destination` llega como id. Se pasa `req` para mantener la transacción. |
+
+## Desviaciones de la implementación
+
+Cambios respecto al plan, acordados durante la implementación:
+
+- **`seoPlugin.collections` queda solo con `['cruises']`** (paso 4/5). El plan pedía añadir `destinations` a la lista. Sin `tabbedUI`, el plugin añade a cada colección de la lista un grupo `meta` propio sin `image`, que pisaba la pestaña `meta` definida a mano en Posts, Flights, Travel-Packages y Destinations. Era la causa de los errores de tipos previos en `Posts`, `Card` y `generateMeta`. Los botones "Generar" siguen funcionando para todas las colecciones: los endpoints `/api/plugin-seo/generate-*` son globales y buscan la colección por `collectionSlug`, no por la lista.
+- **`finalize` como argumento posicional** (paso 7). `pnpm payload run` procesa los argumentos con `minimist` y solo reenvía al script los posicionales, así que `--finalize` nunca llega. El comando es:
+  `pnpm payload run src/scripts/migrate-destinations.ts finalize`
+  El script acepta también `--finalize` por si se ejecuta con otra herramienta.
+- **`finalize` migra también la versión `latest` de `_flights_versions`** (paso 7). Con drafts, el admin (y toda lectura con `draft: true`) lee la versión `latest`, no el documento principal. Si solo se migra el principal, el admin muestra `destination` como texto y el selector sale vacío. `finalize` copia `version.destinationRef` → `version.destination` y hace `$unset` de `version.destinationRef`, `version.country` y `version.relatedPost`. Las versiones antiguas (no `latest`) no se tocan: sigue valiendo el riesgo de no restaurarlas.
+- **`banner` añadido al mapa de `RenderBlocks`** (paso 5). El `layout` de `destinations` admite el bloque `Banner`, pero `RenderBlocks` no lo mapeaba y no se renderizaba. Además, `RenderBlocks` acepta ahora los bloques de `Destination['layout']`.
 
 ## Lo que **no** entra en esta spec
 

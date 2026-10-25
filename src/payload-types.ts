@@ -70,6 +70,7 @@ export interface Config {
     pages: Page;
     posts: Post;
     'travel-packages': TravelPackage;
+    destinations: Destination;
     flights: Flight;
     cruises: Cruise;
     services: Service;
@@ -99,6 +100,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
     'travel-packages': TravelPackagesSelect<false> | TravelPackagesSelect<true>;
+    destinations: DestinationsSelect<false> | DestinationsSelect<true>;
     flights: FlightsSelect<false> | FlightsSelect<true>;
     cruises: CruisesSelect<false> | CruisesSelect<true>;
     services: ServicesSelect<false> | ServicesSelect<true>;
@@ -288,6 +290,10 @@ export interface Post {
   categories?: (string | Category)[] | null;
   meta?: {
     title?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
     description?: string | null;
   };
   publishedAt?: string | null;
@@ -872,14 +878,10 @@ export interface Flight {
    */
   origin: string;
   /**
-   * Ej: Madrid, Firenze, Los Roques...
+   * Selecciona el destino (se gestionan en 📍 Destinos)
    */
-  destination: string;
+  destination: string | Destination;
   typeFlight?: (string | null) | TypesFlight;
-  /**
-   * Ej: España, Italia, Argentina...
-   */
-  country: string;
   /**
    * Descripción corta, min. 100 - max. 150 caracteres
    */
@@ -909,13 +911,13 @@ export interface Flight {
    * Selecciona las características para este vuelo
    */
   highlights?: (string | Highlight)[] | null;
-  /**
-   * Post del blog que habla de este vuelo — genera tráfico SEO hacia esta página
-   */
-  relatedPost?: (string | null) | Post;
   meta?: {
     title?: string | null;
     description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
   };
   publishedAt?: string | null;
   /**
@@ -925,6 +927,80 @@ export interface Flight {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * Gestiona los destinos de Destiny Trip: su contenido, su SEO y su página pública. Los vuelos apuntan a un destino.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destinations".
+ */
+export interface Destination {
+  id: string;
+  /**
+   * Ej: Madrid, Firenze, Los Roques...
+   */
+  name: string;
+  /**
+   * Ej: España, Italia, Venezuela...
+   */
+  country: string;
+  /**
+   * Descripción corta para tarjetas y meta, min. 100 - max. 150 caracteres
+   */
+  description: string;
+  /**
+   * Imagen Principal del destino
+   */
+  cover_image: string | Media;
+  /**
+   * Qué hacer, clima, documentos... el contenido extendido del destino
+   */
+  layout?: (ContentBlock | MediaBlock | CallToActionBlock | BannerBlock)[] | null;
+  /**
+   * Posts del blog que hablan de este destino
+   */
+  relatedPosts?: (string | Post)[] | null;
+  meta?: {
+    title?: string | null;
+    description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
+  };
+  publishedAt?: string | null;
+  /**
+   * URL del destino — se genera automáticamente desde el nombre
+   */
+  slug?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock".
+ */
+export interface BannerBlock {
+  style: 'info' | 'warning' | 'error' | 'success';
+  content: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'banner';
 }
 /**
  * Administra los tipos de vuelos disponibles y configuraciones para organizar mejor las opciones de viaje dentro del panel administrativo de Destiny Trip.
@@ -1141,6 +1217,10 @@ export interface TravelPackage {
   meta?: {
     title?: string | null;
     description?: string | null;
+    /**
+     * Maximum upload file size: 12MB. Recommended file size for images is <500KB.
+     */
+    image?: (string | null) | Media;
   };
   publishedAt?: string | null;
   /**
@@ -1437,6 +1517,10 @@ export interface PayloadLockedDocument {
         value: string | TravelPackage;
       } | null)
     | ({
+        relationTo: 'destinations';
+        value: string | Destination;
+      } | null)
+    | ({
         relationTo: 'flights';
         value: string | Flight;
       } | null)
@@ -1703,6 +1787,7 @@ export interface PostsSelect<T extends boolean = true> {
     | T
     | {
         title?: T;
+        image?: T;
         description?: T;
       };
   publishedAt?: T;
@@ -1810,6 +1895,7 @@ export interface TravelPackagesSelect<T extends boolean = true> {
     | {
         title?: T;
         description?: T;
+        image?: T;
       };
   publishedAt?: T;
   generateSlug?: T;
@@ -1817,6 +1903,47 @@ export interface TravelPackagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "destinations_select".
+ */
+export interface DestinationsSelect<T extends boolean = true> {
+  name?: T;
+  country?: T;
+  description?: T;
+  cover_image?: T;
+  layout?:
+    | T
+    | {
+        content?: T | ContentBlockSelect<T>;
+        mediaBlock?: T | MediaBlockSelect<T>;
+        cta?: T | CallToActionBlockSelect<T>;
+        banner?: T | BannerBlockSelect<T>;
+      };
+  relatedPosts?: T;
+  meta?:
+    | T
+    | {
+        title?: T;
+        description?: T;
+        image?: T;
+      };
+  publishedAt?: T;
+  slug?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "BannerBlock_select".
+ */
+export interface BannerBlockSelect<T extends boolean = true> {
+  style?: T;
+  content?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1828,7 +1955,6 @@ export interface FlightsSelect<T extends boolean = true> {
   origin?: T;
   destination?: T;
   typeFlight?: T;
-  country?: T;
   description?: T;
   cover_image?: T;
   price?: T;
@@ -1837,12 +1963,12 @@ export interface FlightsSelect<T extends boolean = true> {
   endDiscount?: T;
   discountPrice?: T;
   highlights?: T;
-  relatedPost?: T;
   meta?:
     | T
     | {
         title?: T;
         description?: T;
+        image?: T;
       };
   publishedAt?: T;
   slug?: T;
@@ -2486,31 +2612,6 @@ export interface TaskSchedulePublish {
     user?: (string | null) | User;
   };
   output?: unknown;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "BannerBlock".
- */
-export interface BannerBlock {
-  style: 'info' | 'warning' | 'error' | 'success';
-  content: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'banner';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

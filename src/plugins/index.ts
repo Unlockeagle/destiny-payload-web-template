@@ -23,9 +23,9 @@ import { getServerSideURL } from '@/utilities/getURL'
 const generateTitle: GenerateTitle = ({ doc, collectionConfig }) => {
 	switch (collectionConfig?.slug) {
 		case 'flights':
-			// ✅ lee los campos reales, no el virtual
-			return doc?.origin && doc?.destination
-				? `Vuelo ${doc.origin} → ${doc.destination} | Destiny Trip`
+			// `title` ({origin}→{destination.name}) lo genera el hook de Flights
+			return doc?.title
+				? `Vuelo ${doc.title} | Destiny Trip`
 				: 'Destiny Trip'
 
 		case 'posts':
@@ -37,6 +37,11 @@ const generateTitle: GenerateTitle = ({ doc, collectionConfig }) => {
 			return doc?.title
 				? `${doc.title} | Paquetes Destiny Trip`
 				: 'Paquete | Destiny Trip'
+
+		case 'destinations':
+			return doc?.name
+				? `${doc.name} | Destinos Destiny Trip`
+				: 'Destino | Destiny Trip'
 
 		default:
 			return 'Destiny Trip'
@@ -55,6 +60,9 @@ const generateDescription: GenerateDescription = ({
 			return doc?.excerpt ?? ''
 
 		case 'travel-packages':
+			return doc?.description ?? ''
+
+		case 'destinations':
 			return doc?.description ?? ''
 
 		default:
@@ -78,6 +86,9 @@ const generateURL: GenerateURL = ({ doc, collectionConfig }) => {
 
 		case 'travel-packages':
 			return doc?.slug ? `${base}/paquete/${doc.slug}` : base
+
+		case 'destinations':
+			return doc?.slug ? `${base}/destinos/${doc.slug}` : base
 
 		default:
 			return base
@@ -117,7 +128,10 @@ export const plugins: Plugin[] = [
 		generateTitle,
 		generateDescription,
 		generateURL,
-		collections: ['flights', 'cruises', 'posts', 'travel-packages'],
+		// Solo colecciones sin pestaña `meta` propia: si no, el grupo `meta` del
+		// plugin (sin `image`) pisa al definido a mano. Los endpoints "Generar"
+		// funcionan para todas las colecciones aunque no estén en esta lista.
+		collections: ['cruises'],
 	}),
 
 	formBuilderPlugin({

@@ -1,4 +1,4 @@
-import type { CollectionConfig } from 'payload'
+import type { CollectionConfig, PayloadRequest } from 'payload'
 import { slugField } from 'payload'
 import { anyone } from '@/access/anyone'
 import { authenticated } from '@/access/authenticated'
@@ -9,6 +9,34 @@ import {
 	OverviewField,
 	PreviewField,
 } from '@payloadcms/plugin-seo/fields'
+import {
+	revalidateFlightDestination,
+	revalidateFlightDestinationDelete,
+} from '@/hooks/revalidateFlightDestination'
+
+// `destination` llega como id en los hooks; si viene populado se usa tal cual
+const resolveDestinationName = async (
+	destination: unknown,
+	req: PayloadRequest,
+): Promise<string> => {
+	if (!destination) return ''
+
+	if (typeof destination === 'object' && 'name' in destination) {
+		return String(destination.name ?? '')
+	}
+
+	try {
+		const doc = await req.payload.findByID({
+			collection: 'destinations',
+			id: String(destination),
+			depth: 0,
+			req,
+		})
+		return doc?.name ?? ''
+	} catch {
+		return ''
+	}
+}
 
 export const Flights: CollectionConfig = {
 	slug: 'flights',
@@ -37,6 +65,10 @@ export const Flights: CollectionConfig = {
 		read: anyone,
 		update: authenticated,
 	},
+	hooks: {
+		afterChange: [revalidateFlightDestination],
+		afterDelete: [revalidateFlightDestinationDelete],
+	},
 
 	fields: [
 		{
@@ -47,8 +79,12 @@ export const Flights: CollectionConfig = {
 			},
 			hooks: {
 				beforeChange: [
-					({ data }) => {
-						return `${data?.origin ?? ''}→${data?.destination ?? ''}`
+					async ({ data, req }) => {
+						const destinationName = await resolveDestinationName(
+							data?.destination,
+							req,
+						)
+						return `${data?.origin ?? ''}→${destinationName}`
 					},
 				],
 			},
@@ -85,12 +121,13 @@ export const Flights: CollectionConfig = {
 								},
 								{
 									name: 'destination',
-									label: '🛬 Ciudad Destino',
-									type: 'text',
+									label: '🛬 Destino',
+									type: 'relationship',
+									relationTo: 'destinations',
 									required: true,
 									admin: {
 										description:
-											'Ej: Madrid, Firenze, Los Roques...',
+											'Selecciona el destino (se gestionan en 📍 Destinos)',
 										width: '50%',
 									},
 								},
@@ -105,17 +142,6 @@ export const Flights: CollectionConfig = {
 									type: 'relationship',
 									relationTo: 'types-flights',
 									admin: {
-										width: '50%',
-									},
-								},
-								{
-									name: 'country',
-									label: '🗺️ País del destino',
-									type: 'text',
-									required: true,
-									admin: {
-										description:
-											'Ej: España, Italia, Argentina...',
 										width: '50%',
 									},
 								},
@@ -233,17 +259,6 @@ export const Flights: CollectionConfig = {
 									'Selecciona las características para este vuelo',
 							},
 						},
-						{
-							name: 'relatedPost',
-							label: '📖 Post relacionado',
-							type: 'relationship',
-							relationTo: 'posts',
-							hasMany: false,
-							admin: {
-								description:
-									'Post del blog que habla de este vuelo — genera tráfico SEO hacia esta página',
-							},
-						},
 					],
 				},
 
@@ -307,11 +322,14 @@ export const Flights: CollectionConfig = {
 			},
 			hooks: {
 				beforeChange: [
-					({ data, value }) => {
+					async ({ data, req, value }) => {
 						if (value) return value
 
 						const origin = data?.origin ?? ''
-						const destination = data?.destination ?? ''
+						const destination = await resolveDestinationName(
+							data?.destination,
+							req,
+						)
 
 						return `${origin} ${destination}`
 							.toLowerCase()
