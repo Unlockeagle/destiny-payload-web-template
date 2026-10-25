@@ -43,16 +43,16 @@ export const DestinyHero: React.FC<Page['hero']> = ({ links, richText }) => {
 											{...link}
 											appearance="inline"
 											className={cn(
-												'inline-flex items-center gap-2 rounded-full border-2 px-6 py-3 font-medium transition-opacity hover:opacity-90',
+												'group inline-flex items-center gap-2 rounded-full px-6 py-3 font-medium transition-opacity hover:opacity-90',
 												isPrimary
-													? 'border-[#B12672] bg-[#B12672] text-white'
+													? 'text-zinc-50 text-center bg-pink-600 '
 													: 'border-[#1A1F71] bg-transparent text-[#1A1F71]',
 											)}
 										>
 											{isPrimary && (
 												<Play
 													aria-hidden
-													className="size-4 fill-current"
+													className="group-hover:ml-4 group-hover:rotate-360 transition-all ease-in-out duration-300 size-4 fill-current"
 												/>
 											)}
 										</CMSLink>
