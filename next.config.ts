@@ -18,6 +18,9 @@ const nextConfig: NextConfig = {
 	sassOptions: {
 		loadPaths: ['./node_modules/@payloadcms/ui/dist/scss/'],
 	},
+	experimental: {
+		viewTransition: true,
+	},
 	images: {
 		localPatterns: [
 			{

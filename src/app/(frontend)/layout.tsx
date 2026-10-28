@@ -3,7 +3,7 @@ import type { Metadata } from 'next'
 import { cn } from '@/utilities/ui'
 import { GeistMono } from 'geist/font/mono'
 import { GeistSans } from 'geist/font/sans'
-import React from 'react'
+import React, { ViewTransition } from 'react'
 
 import { AdminBar } from '@/components/AdminBar'
 import { Footer } from '@/Footer/Component'
@@ -54,7 +54,7 @@ export default async function RootLayout({
 					/>
 
 					<Header />
-					{children}
+					<ViewTransition>{children}</ViewTransition>
 					<Footer />
 				</Providers>
 			</body>

@@ -240,9 +240,40 @@ html[data-theme='light'] {
 		stroke-dashoffset: 0;
 	}
 }
+/* View transitions: <ViewTransition> en el layout cubre los <Link>, y esta regla los enlaces <a> entre documentos (no las recargas) */
+@view-transition {
+	navigation: auto;
+}
+::view-transition-old(*),
+::view-transition-new(*) {
+	animation-duration: 250ms;
+	animation-timing-function: ease-out;
+}
+/* Header, Footer y AdminBar no hacen fundido; el Header queda por encima del contenido */
+::view-transition-group(site-header),
+::view-transition-group(site-footer),
+::view-transition-group(admin-bar),
+::view-transition-new(site-header),
+::view-transition-new(site-footer),
+::view-transition-new(admin-bar) {
+	animation: none;
+}
+::view-transition-old(site-header),
+::view-transition-old(site-footer),
+::view-transition-old(admin-bar) {
+	display: none;
+}
+::view-transition-group(site-header) {
+	z-index: 10;
+}
 @media (prefers-reduced-motion: reduce) {
 	.animation-draw {
 		animation: none;
 		stroke-dashoffset: 0;
+	}
+	::view-transition-group(*),
+	::view-transition-old(*),
+	::view-transition-new(*) {
+		animation: none !important;
 	}
 }

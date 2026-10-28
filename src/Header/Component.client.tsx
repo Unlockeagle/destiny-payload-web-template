@@ -31,7 +31,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
 
 	return (
 		<header
-			className="w-screen bg-slate-50/30 backdrop-blur-2xl z-20 sticky top-0"
+			className="w-screen bg-slate-50/30 backdrop-blur-2xl z-20 sticky top-0 [view-transition-name:site-header]"
 			{...(theme ? { 'data-theme': theme } : {})}
 		>
 			<div className="container mx-auto py-2 flex justify-between   ">
