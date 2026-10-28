@@ -111,7 +111,7 @@ const DestinationHero: React.FC<{
 	const { cover_image, country, description, name } = destination
 
 	return (
-		<div className="relative isolate -mt-[10.4rem] flex items-end">
+		<div className="relative isolate flex items-end">
 			<div className="container z-10 relative text-white pb-8">
 				<p className="uppercase text-sm mb-4">{country}</p>
 				<h1 className="mb-6 text-3xl md:text-5xl lg:text-6xl">
@@ -124,7 +124,7 @@ const DestinationHero: React.FC<{
 					</p>
 				)}
 			</div>
-			<div className="min-h-[80vh] select-none">
+			<div className="min-h-[80svh] select-none">
 				{cover_image && typeof cover_image === 'object' && (
 					<Media
 						fill
