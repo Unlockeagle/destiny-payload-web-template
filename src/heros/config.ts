@@ -75,7 +75,7 @@ export const hero: Field = {
 					value: 'sm',
 				},
 				{
-					label: 'Mediano (H1 34px · H2 28px · texto 16px)',
+					label: 'Mediano (H1 34px · H2 28px · texto 17px)',
 					value: 'md',
 				},
 				{
