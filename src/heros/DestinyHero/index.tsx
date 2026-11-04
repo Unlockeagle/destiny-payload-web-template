@@ -13,7 +13,18 @@ import { cn } from '@/utilities/ui'
 
 import { Cloud } from './Cloud'
 
-export const DestinyHero: React.FC<Page['hero']> = ({ links, richText }) => {
+// Clases completas (no armadas con plantillas) para que Tailwind las detecte
+const textSizeClasses = {
+	sm: 'prose-h1:text-[28px] prose-h2:text-[24px] prose-p:text-[16px]',
+	md: 'prose-h1:text-[34px] prose-h2:text-[28px] prose-p:text-[17px]',
+	lg: 'prose-h1:text-[44px] prose-h2:text-[36px] prose-p:text-[20px]',
+} as const
+
+export const DestinyHero: React.FC<Page['hero']> = ({
+	links,
+	richText,
+	textSize,
+}) => {
 	const { setHeaderTheme } = useHeaderTheme()
 
 	useEffect(() => {
@@ -27,13 +38,16 @@ export const DestinyHero: React.FC<Page['hero']> = ({ links, richText }) => {
 				<div className="md:w-1/2 md:max-w-[36.5rem]">
 					{richText && (
 						<RichText
-							className="mb-6 break-words text-[#1A1F71] prose-headings:text-[#1A1F71] prose-p:text-[#1A1F71]"
+							className={cn(
+								'mb-6 break-words text-[#1A1F71] prose-headings:text-[#1A1F71] prose-p:text-[#1A1F71]',
+								textSizeClasses[textSize ?? 'md'],
+							)}
 							data={richText}
 							enableGutter={false}
 						/>
 					)}
 					{Array.isArray(links) && links.length > 0 && (
-						<ul className="flex flex-wrap gap-4">
+						<ul className="flex flex-wrap gap-4 text-base">
 							{links.map(({ link }, i) => {
 								const isPrimary = i === 0
 

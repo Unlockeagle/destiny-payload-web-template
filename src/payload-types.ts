@@ -191,6 +191,10 @@ export interface Page {
       };
       [k: string]: unknown;
     } | null;
+    /**
+     * Define el tamaño de los títulos (H1, H2) y los párrafos.
+     */
+    textSize?: ('sm' | 'md' | 'lg') | null;
     links?:
       | {
           link: {
@@ -1629,6 +1633,7 @@ export interface PagesSelect<T extends boolean = true> {
     | {
         type?: T;
         richText?: T;
+        textSize?: T;
         links?:
           | T
           | {
