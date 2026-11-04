@@ -21,66 +21,57 @@ export const FlightCard = ({ flight }: Props) => {
 	// Única ruta que existe hoy; cambiará cuando exista /vuelos/...
 	const href = destination?.slug ? `/destinos/${destination.slug}` : '#'
 
-	// ✅ filtra highlights inválidos antes del map
-	const highlights = (flight.highlights ?? []).filter(
-		(h): h is Extract<typeof h, { id: string }> =>
-			typeof h === 'object' && h !== null,
-	)
+	const title = `${flight.origin} → ${destination?.name ?? ''}`
+	const cover =
+		flight.cover_image && typeof flight.cover_image === 'object'
+			? flight.cover_image
+			: null
+
 	return (
-		<article className="flight-card group rounded-lg overflow-hidden shadow-slate-600/30 shadow-sm flex-none basis-80 snap-center ">
+		<article className="flight-card group rounded-lg overflow-hidden shadow-slate-600/30 shadow-sm flex-none basis-80 snap-center text-base">
 			{/* flight ---->>> imagen */}
-			{flight.cover_image && typeof flight.cover_image === 'object' && (
+			{cover && (
 				<div className="flight-card__images h-56 relative overflow-hidden">
 					<img
 						className="w-full h-full object-cover group-hover:scale-105 transition-transform ease-in-out duration-300"
-						src={flight.cover_image.sizes?.small?.url ?? ''}
-						alt={flight.cover_image.alt ?? ''}
+						src={cover.sizes?.small?.url ?? ''}
+						alt={cover.alt || title}
+						loading="lazy"
 					/>
 					{/* flight --->>> badge */}
-					{flight.isFeatured &&
-						typeof flight.isFeatured === 'boolean' && (
-							<span className=" absolute bg-amber-300 text-slate-950 rounded-2xl px-2 py-1 text-xs top-2 left-2">
-								Destacado
-							</span>
-						)}
+					{flight.isFeatured && (
+						<span className="absolute bg-amber-300 text-slate-950 rounded-2xl px-2 py-1 text-xs font-medium top-2 left-2">
+							Destacado
+						</span>
+					)}
 				</div>
 			)}
 
 			{/* flight --->>> content */}
 			<div className="flight-card__content p-4 w-full flex flex-col justify-between">
-				<div className=" flex flex-col gap-1">
-					<h3 className="text-sm font-semibold">
-						{flight.origin} → {destination?.name}
-					</h3>
-					<p className="text-sm text-slate-600 dark:text-slate-400 truncate">
+				<div className="flex flex-col gap-1">
+					<h3 className="leading-snug font-semibold">{title}</h3>
+					<p className="leading-snug text-slate-600 dark:text-slate-400 line-clamp-2">
 						{flight.description}
 					</p>
-					{/* flight --->>> highlight */}
-					{/* ✅ map limpio sin returns condicionales */}
-					{/* {highlights.length > 0 && (
-						<ul>
-							{highlights.map((h) => (
-								<li key={h.id}>
-									{h.icon} {h.title}
-								</li>
-							))}
-						</ul>
-					)} */}
+
 					{/* flight --->>> price */}
-					<div className="flight-highlights__price-original max-h-12 text-sm">
-						<p>
-							Desde{' '}
-							{hasActiveDiscount && <span>$ {flight.price}</span>}
-							<strong>$ {displayPrice}</strong>
-						</p>
-					</div>
+					<p className="flight-card__price mt-1">
+						Desde{' '}
+						{hasActiveDiscount && (
+							<span className="mr-1 text-slate-500 line-through">
+								$ {flight.price}
+							</span>
+						)}
+						<strong className="font-bold">$ {displayPrice}</strong>
+					</p>
 				</div>
 
 				{/* flight --->>> CTA */}
-
 				<Link
 					href={href}
-					className="group inline-flex items-center gap-2 mt-4  bg-pink-600 text-zinc-50 text-center rounded-md px-4 py-2 font-medium transition-opacity hover:opacity-90"
+					aria-label={`Ver vuelo ${title}`}
+					className="group inline-flex items-center justify-center gap-2 mt-4 bg-pink-600 text-zinc-50 text-center rounded-full px-4 py-2 font-medium transition-opacity hover:opacity-90"
 				>
 					Ver vuelo
 					<Play
